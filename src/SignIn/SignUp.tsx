@@ -1,25 +1,24 @@
-import { useState } from 'react'
+import 'firebase/auth'
 import { useAuth } from "reactfire"
 import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
 import { FormEvent } from 'react'
 import { useHistory } from 'react-router-dom'
 
-export default function SignIn() {
+// https://firebase.google.com/docs/auth/web/email-link-auth
+export default function SignUp() {
     const auth = useAuth()
     const history = useHistory()
-    const [email, setEmail] = useState<string>("")
-    const [password, setPassword] = useState<string>("")
-    const [valid, setValid] = useState<boolean>(true)
-
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         const formData = new FormData(event.target as HTMLFormElement)
         console.log(formData.get("email"), formData.get("password"))
-        auth.signInWithEmailAndPassword(email, password)
-          .then(() => history.push("/"))
+        auth.createUserWithEmailAndPassword(
+            formData.get("email") as string,
+            formData.get("password") as string)
+            .then(() => history.push("/"))
+            .catch(console.error)
     }
-
     return (
         <Form onSubmit={handleSubmit}>
             <Form.Group>
@@ -27,20 +26,21 @@ export default function SignIn() {
                 <Form.Control
                     name="email"
                     type="email"
-                    placeholder="Enter email"
-                    onChange={e => setEmail(e.target.value)}
-                    // isInvalid={!email}
-                    required />
+                    placeholder="Enter email" />
             </Form.Group>
             <Form.Group>
                 <Form.Label>Password</Form.Label>
                 <Form.Control
                     name="password"
                     type="password"
-                    placeholder="Enter password"
-                    onChange={e => setPassword(e.target.value)}
-                    // isInvalid={!password}
-                    required />
+                    placeholder="Enter password" />
+            </Form.Group>
+            <Form.Group>
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control
+                    name="passwordConfirm"
+                    type="password"
+                    placeholder="Enter password" />
             </Form.Group>
             <Button type="submit">Submit</Button>
         </Form>
