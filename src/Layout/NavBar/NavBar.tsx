@@ -20,8 +20,9 @@ export default function NavBar() {
           <Nav.Link as={Link} to="/about">About</Nav.Link>
           <Nav.Link as={Link} to="/privacy">Privacy</Nav.Link>
           {user ?
-            <DropdownButton className={styles.button} title={user.displayName || user.email}>
+            <DropdownButton className={styles.button} title={(user.displayName || user.email) + " "}>
               <Dropdown.Item onClick={() => history.push("/account")}>Account</Dropdown.Item>
+              <Dropdown.Item onClick={() => history.push("/chat")}>Chats</Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item onClick={() => auth.signOut()}>Sign Out</Dropdown.Item>
             </DropdownButton> : <Button className={styles.button} onClick={() => history.push("/signIn")}>Sign In</Button>}

@@ -9,6 +9,7 @@ import Layout from './Layout/Layout';
 import Account from './Account/Account';
 import About from './About/About';
 import Privacy from './Privacy/Privacy';
+import Chats from './Chats/Chats';
 
 function App() {
   return (
@@ -16,6 +17,9 @@ function App() {
       <Switch>
         <Route path="/signIn">
           <SignInUp />
+        </Route>
+        <Route path="/chat">
+          <Chats />
         </Route>
         <Route path="/chat/:room" children={<ChatRoom />} />
         <Route path="/account">

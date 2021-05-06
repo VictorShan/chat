@@ -1,5 +1,6 @@
 import NavBar from "./NavBar/NavBar"
 import { FirebaseAppProvider } from 'reactfire'
+import Container from 'react-bootstrap/Container'
 
 type props = {
   children?: JSX.Element | JSX.Element[]
@@ -8,7 +9,9 @@ export default function Layout({ children }: props) {
   return (
     <FirebaseAppProvider firebaseConfig={firebaseConfig}>
       <NavBar />
-      {children}
+      <Container fluid="sm">
+        {children}
+      </Container>
     </FirebaseAppProvider>
   )
 }
