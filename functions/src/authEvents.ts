@@ -1,7 +1,5 @@
-import * as admin from 'firebase-admin'
-import { auth } from 'firebase-admin'
-
-const db = admin.firestore()
+import {auth} from 'firebase-admin';
+import {db} from './firebase';
 
 export const createUser = (user: auth.UserRecord) => {
   db.collection("users")
@@ -22,7 +20,7 @@ export const createUser = (user: auth.UserRecord) => {
       },
       email: user.email,
     });
-}
+};
 
 export const deleteUser = (user: auth.UserRecord) => {
   db.collection("users").doc(user.uid).delete();

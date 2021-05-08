@@ -1,10 +1,8 @@
 import * as express from 'express';
-import * as admin from 'firebase-admin';
 import * as cors from 'cors';
 import authMiddleware, { Req } from './firebaseAuth';
+import {db} from './firebase';
 
-admin.initializeApp();
-const db = admin.firestore()
 const app = express();
 app.use(authMiddleware);
 app.use(cors({origin: true}));
