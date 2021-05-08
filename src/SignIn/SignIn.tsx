@@ -10,11 +10,11 @@ export default function SignIn() {
     const history = useHistory()
     const [email, setEmail] = useState<string>("")
     const [password, setPassword] = useState<string>("")
-    const [valid, setValid] = useState<boolean>(true)
+    // const [valid, setValid] = useState<boolean>(true)
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
-        const formData = new FormData(event.target as HTMLFormElement)
+        // const formData = new FormData(event.target as HTMLFormElement)
         auth.signInWithEmailAndPassword(email, password)
           .then(() => history.push("/"))
     }
