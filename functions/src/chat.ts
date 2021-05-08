@@ -17,6 +17,7 @@ app.post("/chat/createRoom", async (req: Req, res) => {
   if (req.user && req.body.room) {
     const docRef = db.collection("chats").doc();
     const userRef = db.collection("usersPrivate").doc(req.user.uid);
+    const newListElement: ChatElement = {ref: docRef, name: req.body.name};
     try {
       docRef.set({
         name: req.body.name,
@@ -31,16 +32,17 @@ app.post("/chat/createRoom", async (req: Req, res) => {
       const userDoc = await userRef.get();
       const ownerList = userDoc.data()?.chats.owner || [];
       userRef.update({
-        "chats.owner": [...ownerList, docRef],
+        "chats.owner": [...ownerList, newListElement],
       });
       res.send("Successfully created chatroom " + req.body.name);
     } catch (err) {
       docRef.delete();
       userRef.get()
         .then(doc => doc.data())
-        .then(data => data?.chats.owner || [])
-        .then(ownerList => userRef.update({"chats.owner": ownerList}))
-        .catch(res.status(500).send);
+        .then(data => (data?.chats.owner || []) as ChatElement[])
+        .then(ownerList => userRef.update({
+          "chats.owner": ownerList.filter(item => item !== newListElement)
+        })).catch(res.status(500).send);
       res.status(400).send(err);
     }
   } else {
@@ -64,3 +66,8 @@ app.post("/chat/:room/post", (req, res) => {
 });
 
 export default app
+
+type ChatElement = {
+  ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+  name: string
+}
