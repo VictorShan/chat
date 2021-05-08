@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as cors from 'cors';
-import authMiddleware, { Req } from './firebaseAuth';
+import authMiddleware, {Req} from './firebaseAuth';
 import {db} from './firebase';
 
 const app = express();

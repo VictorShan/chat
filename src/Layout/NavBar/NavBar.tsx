@@ -5,7 +5,8 @@ import { Link, useHistory } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'
 import { useUser, useAuth } from "reactfire";
 import { Dropdown, DropdownButton } from "react-bootstrap";
-import styles from './NavBar.module.sass'
+import styles from './NavBar.module.sass';
+
 export default function NavBar() {
   const auth = useAuth()
   const { data: user } = useUser()
