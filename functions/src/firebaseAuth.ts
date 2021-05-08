@@ -5,7 +5,7 @@ import { Request, Response } from 'firebase-functions';
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
 // `Authorization: Bearer <Firebase ID Token>`.
 // when decoded successfully, the ID Token content will be added as `req.user`.
-interface Req extends Request {
+export interface Req extends Request {
   user?: admin.auth.DecodedIdToken
 }
 const validateFirebaseIdToken = async (req: Req, res: Response, next: () => void) => {
