@@ -1,7 +1,7 @@
 import {auth} from "firebase-admin";
 import {db} from "./firebase";
 
-export const createUser = async (user: auth.UserRecord) => {
+export const createUser = async (user: auth.UserRecord): Promise<string> => {
   try {
     await db.collection("users")
         .doc(user.uid)
@@ -13,7 +13,7 @@ export const createUser = async (user: auth.UserRecord) => {
     await db.collection("usersPrivate")
         .doc(user.uid)
         .set({
-          uid: user,
+          uid: user.uid,
           chats: {
             moderator: [],
             owner: [],
@@ -28,7 +28,13 @@ export const createUser = async (user: auth.UserRecord) => {
   }
 };
 
-export const deleteUser = (user: auth.UserRecord) => {
-  db.collection("users").doc(user.uid).delete();
-  db.collection("usersPrivate").doc(user.uid).delete();
+export const deleteUser = async (user: auth.UserRecord): Promise<string> => {
+  try {
+    const publicUser = db.collection("users").doc(user.uid).delete();
+    const privateUser = db.collection("usersPrivate").doc(user.uid).delete();
+    await Promise.all([publicUser, privateUser]);
+    return "Deleted user";
+  } catch (err) {
+    return err;
+  }
 };

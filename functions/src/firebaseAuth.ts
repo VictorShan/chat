@@ -13,7 +13,7 @@ export interface Req extends Request {
 const validateFirebaseIdToken = async (
     req: Req,
     res: Response,
-    next: () => void) => {
+    next: () => void): Promise<void> => {
   functions.logger.log("Check if request is authorized with Firebase ID token");
 
   if ((!req.headers.authorization ||

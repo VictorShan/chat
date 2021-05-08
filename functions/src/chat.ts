@@ -58,16 +58,62 @@ app.post("/chat/createRoom", async (req: Req, res) => {
 //   if (req.params.room && req.body.uid) {}
 // });
 
-// app.post("/chat/:room/post", (req, res) => {
-//   const room = req.params.room;
-//   if (room) {
-
-//   }
-// });
+// body.message
+app.post("/chat/:room/post", async (req: Req, res) => {
+  const room = req.params.room;
+  const docRef = db.collection("chats").doc(room);
+  try {
+    const doc = await docRef.get();
+    if (doc.exists) {
+      const data = doc.data() as ChatDoc;
+      const uids = Object.keys(data.users);
+      if (uids.includes(req.user?.uid || "")) {
+        await docRef.update({
+          messages: [
+            ...data.messages,
+            {
+              uid: req.user?.uid || "Anonymous",
+              message: req.body.message || "",
+              time: FirebaseFirestore.Timestamp.now(),
+            },
+          ],
+        });
+      } else {
+        res.status(400).send("Not part of chatroom");
+      }
+    } else {
+      res.status(400).send("Chatroom not found");
+    }
+  } catch (err) {
+    res.status(500).send("Failed to send message");
+  }
+});
 
 export default app;
 
+type DocRef = FirebaseFirestore
+  .DocumentReference<FirebaseFirestore.DocumentData>
+
 type ChatElement = {
-  ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>
+  ref: DocRef
   name: string
+}
+
+type ChatDoc = {
+  messages: Message[]
+  name: string
+  next?: DocRef
+  prev?: DocRef
+  users: {[uid: string]: User}
+}
+
+type User = {
+  displayName: string
+  role: "owner" | "moderator" | "user"
+}
+
+type Message = {
+  message: string
+  uid: string
+  time: FirebaseFirestore.Timestamp
 }
