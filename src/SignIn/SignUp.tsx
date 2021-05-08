@@ -12,7 +12,6 @@ export default function SignUp() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         const formData = new FormData(event.target as HTMLFormElement)
-        console.log(formData.get("email"), formData.get("password"))
         auth.createUserWithEmailAndPassword(
             formData.get("email") as string,
             formData.get("password") as string)

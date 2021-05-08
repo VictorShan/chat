@@ -15,7 +15,6 @@ export default function SignIn() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         const formData = new FormData(event.target as HTMLFormElement)
-        console.log(formData.get("email"), formData.get("password"))
         auth.signInWithEmailAndPassword(email, password)
           .then(() => history.push("/"))
     }

@@ -20,7 +20,10 @@ export default function NavBar() {
           <Nav.Link as={Link} to="/about">About</Nav.Link>
           <Nav.Link as={Link} to="/privacy">Privacy</Nav.Link>
           {user ?
-            <DropdownButton className={styles.button} title={(user.displayName || user.email) + " "}>
+            <DropdownButton
+              className={styles.button}
+              title={(user.displayName || user.email) + " "}
+              menuAlign={"right"}>
               <Dropdown.Item onClick={() => history.push("/account")}>Account</Dropdown.Item>
               <Dropdown.Item onClick={() => history.push("/chat")}>Chats</Dropdown.Item>
               <Dropdown.Divider />
