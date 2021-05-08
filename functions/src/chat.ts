@@ -1,7 +1,7 @@
-import * as express from 'express';
-import * as cors from 'cors';
-import authMiddleware, {Req} from './firebaseAuth';
-import {db} from './firebase';
+import * as express from "express";
+import * as cors from "cors";
+import authMiddleware, {Req} from "./firebaseAuth";
+import {db} from "./firebase";
 
 const app = express();
 app.use(authMiddleware);
@@ -38,18 +38,18 @@ app.post("/chat/createRoom", async (req: Req, res) => {
     } catch (err) {
       docRef.delete();
       userRef.get()
-        .then(doc => doc.data())
-        .then(data => (data?.chats.owner || []) as ChatElement[])
-        .then(ownerList => userRef.update({
-          "chats.owner": ownerList.filter(item => item !== newListElement)
-        })).catch(res.status(500).send);
+          .then((doc) => doc.data())
+          .then((data) => (data?.chats.owner || []) as ChatElement[])
+          .then((ownerList) => userRef.update({
+            "chats.owner": ownerList.filter((item) => item !== newListElement),
+          })).catch(res.status(500).send);
       res.status(400).send(err);
     }
   } else {
     if (!req.user) {
-      res.status(401).send("No user associated with this request")
+      res.status(401).send("No user associated with this request");
     } else {
-      res.status(400).send("No room name specified")
+      res.status(400).send("No room name specified");
     }
   }
 });
@@ -58,14 +58,14 @@ app.post("/chat/createRoom", async (req: Req, res) => {
 //   if (req.params.room && req.body.uid) {}
 // });
 
-app.post("/chat/:room/post", (req, res) => {
-  const room = req.params.room;
-  if (room) {
+// app.post("/chat/:room/post", (req, res) => {
+//   const room = req.params.room;
+//   if (room) {
 
-  }
-});
+//   }
+// });
 
-export default app
+export default app;
 
 type ChatElement = {
   ref: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>

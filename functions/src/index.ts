@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
-import { createUser, deleteUser } from "./authEvents";
-import msgs from './chat'
+import {createUser, deleteUser} from "./authEvents";
+import msgs from "./chat";
 
 export const api = functions.https.onRequest(msgs);
 export const createUserDoc = functions.auth.user().onCreate(createUser);
