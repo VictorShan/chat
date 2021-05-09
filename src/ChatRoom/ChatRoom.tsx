@@ -21,19 +21,23 @@ export default function ChatRoom() {
   const [newMsg, setNewMsg] = useState("")
 
   useEffect(() => {
-    if (user.status === "success") {
+    if (user.data) {
       try {
         const unsubscribe = docRef.onSnapshot(doc => {
-          const data = doc.data() as ChatData
-          setUsers(data.users)
-          setMessages(oldMsgs => data.messages as Message[] || [])
+          if (doc.exists) {
+            const data = doc.data() as ChatData
+            setUsers(data.users)
+            setMessages(oldMsgs => data.messages as Message[] || [])
+            console.log("snap")
+          }
         })
+        console.log(user.data.uid)
         return unsubscribe
       } catch (err) {
         console.error("Error:", err)
       }
     }
-  }, [user.status, docRef])
+  }, [])
   return (
     <main>
       <section>

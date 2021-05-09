@@ -22,12 +22,13 @@ export default function Chats() {
   useEffect(() => {
     if (user.data) {
       const docRef = db.collection('usersPrivate').doc(user.data.uid)
-      docRef.onSnapshot(doc => {
+      const unsubscribe = docRef.onSnapshot(doc => {
         const docData = doc.data() as UserPrivateData
         const chatData = docData.chats
         setChats([...(chatData.owner), ...(chatData.moderator), ...(chatData.user)])
       })
       console.log(user.data.getIdToken())
+      return unsubscribe
     }
   }, [user.status, db])
 
