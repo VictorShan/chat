@@ -3,11 +3,13 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { Link, useHistory } from 'react-router-dom';
 import Button from 'react-bootstrap/Button'
-import { useUser, useAuth } from "reactfire";
+import { useUser, useAuth, useFirebaseApp } from "reactfire";
 import { Dropdown, DropdownButton } from "react-bootstrap";
 import styles from './NavBar.module.sass';
+import preloadSDKs from '../../utils/firebaseUtils'
 
 export default function NavBar() {
+  preloadSDKs(useFirebaseApp())
   const auth = useAuth()
   const { data: user } = useUser()
   const history = useHistory()
@@ -26,7 +28,7 @@ export default function NavBar() {
               title={(user.displayName || user.email) + " "}
               menuAlign={"right"}>
               <Dropdown.Item onClick={() => history.push("/account")}>Account</Dropdown.Item>
-              <Dropdown.Item onClick={() => history.push("/chat")}>Chats</Dropdown.Item>
+              <Dropdown.Item onClick={() => history.push("/chats")}>Chats</Dropdown.Item>
               <Dropdown.Divider />
               <Dropdown.Item onClick={() => auth.signOut()}>Sign Out</Dropdown.Item>
             </DropdownButton> : <Button className={styles.button} onClick={() => history.push("/signIn")}>Sign In</Button>}

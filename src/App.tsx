@@ -18,7 +18,7 @@ function App() {
         <Route path="/signIn">
           <SignInUp />
         </Route>
-        <Route path="/chat">
+        <Route path="/chats">
           <Chats />
         </Route>
         <Route path="/chat/:room" children={<ChatRoom />} />

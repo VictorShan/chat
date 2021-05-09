@@ -13,7 +13,7 @@ app.get("/", (req, res) => {
   res.send("Chat App");
 });
 
-app.post("/chat/createRoom", async (req: Req, res) => {
+app.post("/createRoom", async (req: Req, res) => {
   if (req.user && req.body.room) {
     const docRef = db.collection("chats").doc();
     const userRef = db.collection("usersPrivate").doc(req.user.uid);
@@ -59,7 +59,7 @@ app.post("/chat/createRoom", async (req: Req, res) => {
 // });
 
 // body.message
-app.post("/chat/:room/post", async (req: Req, res) => {
+app.post("/:room/post", async (req: Req, res) => {
   const room = req.params.room;
   const docRef = db.collection("chats").doc(room);
   try {

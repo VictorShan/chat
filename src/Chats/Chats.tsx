@@ -1,30 +1,37 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAuth, useFirestore } from "reactfire"
 import firebase from 'firebase/app'
 import 'firebase/firestore'
+import { useHistory } from "react-router-dom"
 
 
 export default function Chats() {
   const auth = useAuth()
   const db = useFirestore()
   const [chats, setChats] = useState<Chat[]>([])
-  if (auth.currentUser) {
-    db.collection('userPrivate')
-      .doc(auth.currentUser.uid)
-      .get()
-      .then(doc => (doc.data() || emptyUserPrivateData) as UserPrivateData)
-      .then(data => {
-        setChats([...(data.chats.owner), ...(data.chats.moderator), ...(data.chats.user)])
-      })
+  const history = useHistory()
 
-  }
+  useEffect(() => {
+    if (auth.currentUser) {
+      const docRef = db.collection('usersPrivate').doc(auth.currentUser.uid)
+      docRef.onSnapshot(doc => {
+        const docData = doc.data() as UserPrivateData
+        const chatData = docData.chats
+        console.log("Snapshot")
+        setChats([...(chatData.owner), ...(chatData.moderator), ...(chatData.user)])
+      })
+    }
+  }, [auth.currentUser])
+
   return (
     <main>
       <h1>Chats</h1>
       {/* Get chats from firestore */}
       <ul>
         {chats.map(chat => (
-          <li id={chat.ref.id}>{chat.name}</li>
+          <li id={chat.ref.id} onClick={() => history.push('/chat/' + chat.ref.id)}>
+            {chat.name}
+          </li>
         ))}
       </ul>
     </main>
