@@ -1,7 +1,7 @@
-import { useAuth } from 'reactfire'
+import { User } from './firebaseUtils'
 
-const authFetch = async (url: RequestInfo, options?: RequestInit) => {
-  let idToken = await useAuth().currentUser?.getIdToken()
+const authFetch = async (url: RequestInfo, user: User, options?: RequestInit) => {
+  let idToken = user.getIdToken()
   if (!options) {
     options = {
       method: "GET",

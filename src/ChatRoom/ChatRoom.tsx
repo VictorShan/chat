@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import { useFirestore, useUser } from "reactfire"
-import { Timestamp } from "../utils/firebaseUtils"
+import { Timestamp, User } from "../utils/firebaseUtils"
+import Button from 'react-bootstrap/Button'
+import Form from 'react-bootstrap/Form'
+import styles from './ChatRoom.module.sass'
 
-
+const API_URL = "https://us-central1-serverless-chat-3240c.cloudfunctions.net/api/"
+// const API_URL = "http://localhost:5001/serverless-chat-3240c/us-central1/api/"
 export default function ChatRoom() {
   // @ts-ignore
   let { room } = useParams()
@@ -11,14 +15,27 @@ export default function ChatRoom() {
   const db = useFirestore()
   const docRef = db.collection('chats').doc(room)
   const [messages, setMessages] = useState<Message[]>([])
+  const [users, setUsers] = useState<{[uid: string]: Participant}>({})
+  const [newMsg, setNewMsg] = useState("")
+  let sendMessage = (message: string) => {
+    return postMessage(genUrl(room), user.data, message)
+  }
   useEffect(() => {
-    try {
-      docRef.onSnapshot(doc => {
-        console.log(doc.data())
-        setMessages(oldMsgs => doc.data()?.messages as Message[] || oldMsgs)
-      })
-    } catch (err) {
-      console.error("Error:", err)
+    if (user.status === "success") {
+      getMessage(genUrl(room), user.data)
+      user.data.getIdToken().then(console.log).catch(console.error)
+      sendMessage = (message: string) => {
+        return postMessage(genUrl(room), user.data, message)
+      }
+      try {
+        docRef.onSnapshot(doc => {
+          const data = doc.data() as ChatData
+          setUsers(data.users)
+          setMessages(oldMsgs => data.messages as Message[] || [])
+        })
+      } catch (err) {
+        console.error("Error:", err)
+      }
     }
   }, [user.status])
   return (
@@ -28,19 +45,70 @@ export default function ChatRoom() {
         <ul>
           {messages.map((msg, i) => {
             return (
-              <li key={i}>
-                <span>{msg.message}</span>
+              <li key={i} className={styles.message}>
+                <span className={styles.name}>{users[msg.uid].displayName}: </span>
+                {msg.message}
+                <span className={styles.time}>{msg.time.toDate().toDateString()}</span>
               </li>
             )
           })}
         </ul>
+        <hr/>
+        <Form className={styles.form}>
+          <Form.Control
+            onChange={e => setNewMsg(e.currentTarget.value)}
+            value={newMsg}/>
+          <Button onClick={() => sendMessage(newMsg)}>Submit</Button>
+        </Form>
       </section>
     </main>
   )
+}
+
+function genUrl(room: string): string {
+  return API_URL + room + "/post"
+}
+async function postMessage(url: string, user: User, message: string) {
+  return await fetch(
+    url,
+    {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + await user.getIdToken(),
+      },
+      body: JSON.stringify({message}),
+    }
+  )
+}
+
+async function getMessage(url: string, user: User) {
+  return await fetch(
+    url,
+    {
+      method: "GET",
+      headers: {
+        'Authorization': 'Bearer ' + await user.getIdToken(),
+      },
+    }
+  )
+}
+
+type ChatData = {
+  name: string
+  messages: Message[]
+  users: {
+    [uid: string]: Participant
+  }
 }
 
 type Message = {
   uid: string
   message: string
   time: Timestamp
+}
+
+type Participant = {
+  displayName: string
+  role: "owner" | "moderator" | "user"
 }
