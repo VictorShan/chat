@@ -30,7 +30,7 @@ export default function ChatRoom() {
         console.error("Error:", err)
       }
     }
-  }, [user.status])
+  }, [user.status, docRef])
   return (
     <main>
       <section>
@@ -73,18 +73,6 @@ async function postMessage(url: string, user: User, message: string) {
         'Authorization': 'Bearer ' + await user.getIdToken(),
       },
       body: JSON.stringify({message}),
-    }
-  )
-}
-
-async function getMessage(url: string, user: User) {
-  return await fetch(
-    url,
-    {
-      method: "GET",
-      headers: {
-        'Authorization': 'Bearer ' + await user.getIdToken(),
-      },
     }
   )
 }
