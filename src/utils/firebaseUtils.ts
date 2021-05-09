@@ -32,3 +32,4 @@ const preloadSDKs = (firebaseApp: firebase.app.App) => {
 export default preloadSDKs
 export type Timestamp = firebase.firestore.Timestamp
 export type User = firebase.User
+export type DocRef = firebase.firestore.DocumentReference

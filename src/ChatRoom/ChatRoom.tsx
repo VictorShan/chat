@@ -5,9 +5,11 @@ import { Timestamp, User } from "../utils/firebaseUtils"
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import styles from './ChatRoom.module.sass'
+import { postRequest } from "../utils/authFetch"
 
-const API_URL = "https://us-central1-serverless-chat-3240c.cloudfunctions.net/api/"
-// const API_URL = "http://localhost:5001/serverless-chat-3240c/us-central1/api/"
+const API_URL = process.env.NODE_ENV === "development" ?
+    "http://localhost:5001/serverless-chat-3240c/us-central1/api/" :
+    "https://us-central1-serverless-chat-3240c.cloudfunctions.net/api/"
 export default function ChatRoom() {
   // @ts-ignore
   let { room } = useParams()
@@ -21,11 +23,12 @@ export default function ChatRoom() {
   useEffect(() => {
     if (user.status === "success") {
       try {
-        docRef.onSnapshot(doc => {
+        const unsubscribe = docRef.onSnapshot(doc => {
           const data = doc.data() as ChatData
           setUsers(data.users)
           setMessages(oldMsgs => data.messages as Message[] || [])
         })
+        return unsubscribe
       } catch (err) {
         console.error("Error:", err)
       }
@@ -51,7 +54,7 @@ export default function ChatRoom() {
           <Form.Control
             onChange={e => setNewMsg(e.currentTarget.value)}
             value={newMsg}/>
-          <Button onClick={() => postMessage(genUrl(room), user.data, newMsg)}>
+          <Button onClick={() => postRequest(genUrl(room), user.data, {newMsg})}>
             Submit
           </Button>
         </Form>
@@ -62,19 +65,6 @@ export default function ChatRoom() {
 
 function genUrl(room: string): string {
   return API_URL + room + "/post"
-}
-async function postMessage(url: string, user: User, message: string) {
-  return await fetch(
-    url,
-    {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + await user.getIdToken(),
-      },
-      body: JSON.stringify({message}),
-    }
-  )
 }
 
 type ChatData = {
