@@ -17,16 +17,9 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState<Message[]>([])
   const [users, setUsers] = useState<{[uid: string]: Participant}>({})
   const [newMsg, setNewMsg] = useState("")
-  let sendMessage = (message: string) => {
-    return postMessage(genUrl(room), user.data, message)
-  }
+
   useEffect(() => {
     if (user.status === "success") {
-      getMessage(genUrl(room), user.data)
-      user.data.getIdToken().then(console.log).catch(console.error)
-      sendMessage = (message: string) => {
-        return postMessage(genUrl(room), user.data, message)
-      }
       try {
         docRef.onSnapshot(doc => {
           const data = doc.data() as ChatData
@@ -58,7 +51,9 @@ export default function ChatRoom() {
           <Form.Control
             onChange={e => setNewMsg(e.currentTarget.value)}
             value={newMsg}/>
-          <Button onClick={() => sendMessage(newMsg)}>Submit</Button>
+          <Button onClick={() => postMessage(genUrl(room), user.data, newMsg)}>
+            Submit
+          </Button>
         </Form>
       </section>
     </main>

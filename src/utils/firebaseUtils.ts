@@ -1,7 +1,7 @@
 import {
   // preloadFirestoreDoc,
   // preloadUser,
-  preloadAuth,
+  // preloadAuth,
   preloadFirestore,
   // preloadDatabase,
   // preloadStorage,

@@ -21,7 +21,7 @@ export default function Chats() {
         setChats([...(chatData.owner), ...(chatData.moderator), ...(chatData.user)])
       })
     }
-  }, [auth.currentUser])
+  }, [auth.currentUser, db])
 
   return (
     <main>
@@ -49,12 +49,4 @@ type UserPrivateData = {
 type Chat = {
   name: string,
   ref: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>
-}
-
-const emptyUserPrivateData = {
-  chats: {
-    owner: [],
-    moderator: [],
-    user: []
-  }
 }
