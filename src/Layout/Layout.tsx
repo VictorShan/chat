@@ -15,7 +15,8 @@ const firebaseConfig = {
 };
 const app = firebase.initializeApp(firebaseConfig)
 // app.firestore().useEmulator("localhost", 8080)
-app.auth().useEmulator("http://localhost:9099/")
+if (process.env.NODE_ENV === "development")
+  app.auth().useEmulator("http://localhost:9099/")
 
 
 type props = {
