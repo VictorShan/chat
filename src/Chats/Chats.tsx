@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import { useUser, useFirestore } from "reactfire"
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-// import firebase from 'firebase/app'
 import 'firebase/firestore'
 import { useHistory } from "react-router-dom"
 import { DocRef } from "../utils/firebaseUtils"
 import { postRequest } from "../utils/authFetch"
+import styles from './Chats.module.sass'
 
 const API_URL = process.env.NODE_ENV === "development" ?
     "http://localhost:5001/serverless-chat-3240c/us-central1/api/createRoom" :
@@ -29,7 +29,6 @@ export default function Chats() {
           setChats([...(chatData.owner), ...(chatData.moderator), ...(chatData.user)])
         }
       })
-      console.log(user.data.getIdToken())
       return unsubscribe
     }
   }, [user.data, db])
@@ -52,10 +51,14 @@ export default function Chats() {
           Create Chat
         </Button>
       </Form>
-      <ul>
+      <hr/>
+      <ul className={styles.chats}>
         {chats.map(chat => (
-          <li id={chat.ref.id} onClick={() => history.push('/chat/' + chat.ref.id)}>
-            {chat.name}
+          <li
+            key={chat.ref.id}
+            className={styles.chat}
+            onClick={() => history.push('/chat/' + chat.ref.id)}>
+            <p>{chat.name}</p>
           </li>
         ))}
       </ul>

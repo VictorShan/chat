@@ -30,21 +30,29 @@ export default function ChatRoom() {
             setUsers(data.users)
             setMessages(oldMsgs => data.messages as Message[] || [])
             setRoomName(data.name)
-            console.log("snap")
           }
         })
-        console.log(user.data.uid)
         return unsubscribe
       } catch (err) {
         console.error("Error:", err)
       }
     }
   }, [user.data, room, db])
+
+  const makeRequest = () => {
+    if (!newMsg) return
+    postRequest(genUrl(room), user.data, {message: newMsg})
+        .then(() => setNewMsg(""))
+        .catch(err => console.error("Failed to make room:", err))
+  }
   return (
     <main>
       <section>
-        <h1>ChatRoom: {roomName}</h1>
-        <ul>
+        <header className={styles.header}>
+          <h1>ChatRoom: {roomName}</h1>
+          <Button variant="outline-primary">Invite</Button>
+        </header>
+        <ul className={styles.messages}>
           {messages.map((msg, i) => {
             return (
               <li key={i} className={styles.message}>
@@ -60,7 +68,7 @@ export default function ChatRoom() {
           <Form.Control
             onChange={e => setNewMsg(e.currentTarget.value)}
             value={newMsg}/>
-          <Button onClick={() => postRequest(genUrl(room), user.data, {newMsg})}>
+          <Button onClick={makeRequest}>
             Submit
           </Button>
         </Form>

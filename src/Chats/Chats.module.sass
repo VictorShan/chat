@@ -1,0 +1,22 @@
+.chats
+  display: grid
+  // grid-auto-columns: minmax(12ch, 24ch)
+  grid-template-columns: repeat(auto-fit, minmax(12ch, 24ch))
+  column-gap: 1rem
+  row-gap: 1rem
+  list-style: none
+  padding: 0
+
+.chat
+  min-height: 3rem
+  font-size: 1.5rem
+  cursor: pointer
+  border: 1px solid #0879fa
+  border-radius: 10px
+
+  display: flex
+  justify-content: center
+  align-items: center
+
+  p
+    margin-bottom: 0
