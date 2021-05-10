@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import { useFirestore, useUser } from "reactfire"
-import { Timestamp, User } from "../utils/firebaseUtils"
+import { Timestamp } from "../utils/firebaseUtils"
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import styles from './ChatRoom.module.sass'
@@ -15,19 +15,21 @@ export default function ChatRoom() {
   let { room } = useParams()
   const user = useUser()
   const db = useFirestore()
-  const docRef = db.collection('chats').doc(room)
   const [messages, setMessages] = useState<Message[]>([])
   const [users, setUsers] = useState<{[uid: string]: Participant}>({})
   const [newMsg, setNewMsg] = useState("")
+  const [roomName, setRoomName] = useState(room)
 
   useEffect(() => {
     if (user.data) {
       try {
+        const docRef = db.collection('chats').doc(room)
         const unsubscribe = docRef.onSnapshot(doc => {
           if (doc.exists) {
             const data = doc.data() as ChatData
             setUsers(data.users)
             setMessages(oldMsgs => data.messages as Message[] || [])
+            setRoomName(data.name)
             console.log("snap")
           }
         })
@@ -37,18 +39,18 @@ export default function ChatRoom() {
         console.error("Error:", err)
       }
     }
-  }, [])
+  }, [user.data, room, db])
   return (
     <main>
       <section>
-        <h1>ChatRoom: {room}</h1>
+        <h1>ChatRoom: {roomName}</h1>
         <ul>
           {messages.map((msg, i) => {
             return (
               <li key={i} className={styles.message}>
                 <span className={styles.name}>{users[msg.uid].displayName}: </span>
                 {msg.message}
-                <span className={styles.time}>{msg.time.toDate().toDateString()}</span>
+                <span className={styles.time}>{formatDate(msg.time.toDate())}</span>
               </li>
             )
           })}
@@ -65,6 +67,27 @@ export default function ChatRoom() {
       </section>
     </main>
   )
+}
+
+function formatDate(date: Date): string {
+  if ((new Date()).toLocaleDateString() !== date.toLocaleDateString()) {
+    const dateOptions: Intl.DateTimeFormatOptions = {
+      month: "2-digit",
+      day: "2-digit",
+      year: "2-digit",
+    }
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour12: true,
+      hour: "numeric",
+      minute: "2-digit",
+    }
+    return (
+      date.toLocaleTimeString(undefined, timeOptions) +
+      ", " +
+      date.toLocaleDateString(undefined, dateOptions)
+    )
+  }
+  return date.toLocaleTimeString()
 }
 
 function genUrl(room: string): string {
