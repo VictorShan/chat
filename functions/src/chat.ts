@@ -4,8 +4,8 @@ import authMiddleware, {Req} from "./firebaseAuth";
 import {db, DocRef, timestamp, Timestamp} from "./firebase";
 
 const app = express();
-app.use(authMiddleware);
 app.use(cors({origin: true}));
+app.use(authMiddleware);
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
