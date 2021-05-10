@@ -1,3 +1,3 @@
 # Chat
 
-[Website](https://victorshan.github.io/chat/)
+[Website](https://serverless-chat-3240c.web.app/
