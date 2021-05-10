@@ -1,7 +1,15 @@
 import * as express from "express";
 import * as cors from "cors";
 import authMiddleware, {Req} from "./firebaseAuth";
-import {db, DocRef, timestamp, Timestamp} from "./firebase";
+import {
+  ChatDoc,
+  ChatElement,
+  db,
+  DocRef,
+  MessageUsers,
+  timestamp,
+  UserPrivateDoc
+} from "./firebase";
 
 const app = express();
 app.use(cors({origin: true}));
@@ -56,9 +64,72 @@ app.post("/createRoom", async (req: Req, res) => {
   }
 });
 
-// app.post("/chat/:room/invite", (req, res) => {
-//   if (req.params.room && req.body.uid) {}
-// });
+app.post("/chat/invite", async (req: Req, res) => {
+  const user = req.user || req.body.user;
+  const uid = req.body.uid;
+  const room = req.body.roomId;
+  const roomName = req.body.roomName;
+  const chatRef = db.collection("chats").doc(room);
+  const userRef = db.collection("usersPrivate").doc(uid);
+  try {
+    if (!uid) {
+      res.status(400).send("No uid to invite.");
+    } else {
+      const chat = await chatRef.get();
+      const invitee = await userRef.get();
+      if (!chat.exists) {
+        res.status(400).send(`Room ${room} does not exist.`)
+      } else if (!invitee.exists) {
+        res.status(400).send(`User ${uid} does not exist.`)
+      } else {
+        const chatData = chat.data() as ChatDoc;
+        const userData = invitee.data() as UserPrivateDoc;
+        if (
+            checkShouldInvite(chatRef, user.uid, uid, chatData.users, userData)
+          ) {
+          const newChat: ChatElement = {
+            name: roomName,
+            ref: chatRef,
+          };
+          userRef.update({
+            "chats.invited": [...userData.chats.invited, newChat],
+          });
+        } else {
+          res.status(400).send("Insufficent permissions or already invited.");
+        }
+      }
+    }
+  } catch (err) {
+    res.status(500).send(`Failed to invite ${uid} to ${room}, ${err}`);
+  }
+});
+
+/**
+ * Evaluates whether a user can be invited by checking if the
+ * inviter can invite, invitee is not already in the chat, and
+ * the invitee does not already have an invite.
+ * @param room The reference to the firestore document
+ * @param inviterId The id of the user inviting
+ * @param inviteeId The id of the user being invited
+ * @param users The users currently in the chat
+ * @param userData The private userdata of the person being invited
+ * @returns True if the invitee can be invited
+ */
+function checkShouldInvite(
+    room: DocRef,
+    inviterId: string,
+    inviteeId: string,
+    users: MessageUsers,
+    userData: UserPrivateDoc): boolean {
+  const inviterRole = users[inviterId].role;
+  const canInvite = inviterRole === "owner" || inviterRole === "moderator";
+  const invites = userData.chats.invited
+  const hasInvite = invites.filter((chat) => chat.ref === room).length === 1
+  const notInChat = !users[inviteeId];
+  return canInvite && notInChat && !hasInvite;
+}
+
+app.post("/acceptInvite", async (req, res) => {});
 
 // body.message
 app.post("/:room/post", async (req: Req, res) => {
@@ -95,27 +166,3 @@ app.post("/:room/post", async (req: Req, res) => {
 });
 
 export default app;
-
-type ChatElement = {
-  ref: DocRef
-  name: string
-}
-
-type ChatDoc = {
-  messages: Message[]
-  name: string
-  next?: DocRef
-  prev?: DocRef
-  users: {[uid: string]: User}
-}
-
-type User = {
-  displayName: string
-  role: "owner" | "moderator" | "user"
-}
-
-type Message = {
-  message: string
-  uid: string
-  time: Timestamp
-}

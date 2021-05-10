@@ -1,26 +1,25 @@
 import {auth} from "firebase-admin";
-import {db} from "./firebase";
+import {db, UserDoc, UserPrivateDoc} from "./firebase";
 
 export const createUser = async (user: auth.UserRecord): Promise<string> => {
   try {
-    await db.collection("users")
-        .doc(user.uid)
-        .set({
-          uid: user.uid,
-          displayName: user.displayName,
-          photoUrl: user.photoURL,
-        });
-    await db.collection("usersPrivate")
-        .doc(user.uid)
-        .set({
-          uid: user.uid,
-          chats: {
-            moderator: [],
-            owner: [],
-            user: [],
-          },
-          email: user.email,
-        });
+    const userData: UserDoc = {
+      uid: user.uid,
+      displayName: user.displayName || "",
+      photoUrl: user.photoURL || "",
+    }
+    const userPrivateData: UserPrivateDoc = {
+      uid: user.uid,
+      chats: {
+        moderator: [],
+        owner: [],
+        user: [],
+        invited: [],
+      },
+      email: user.email || "",
+    }
+    await db.collection("users").doc(user.uid).set(userData);
+    await db.collection("usersPrivate").doc(user.uid).set(userPrivateData);
     return "Deleted user: " + user.email;
   } catch (error) {
     console.log(error);
